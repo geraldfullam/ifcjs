@@ -9,7 +9,7 @@ function IFCDate (a, b, c, d, e, f, g) {
 		return (date.isLeapYear() && m > 5)
 			? dayOfYear += 1
 			: dayOfYear;
-	}
+	};
 	switch (arguments.length) {
 		case 0:
 			date = new Date();
@@ -21,39 +21,20 @@ function IFCDate (a, b, c, d, e, f, g) {
 				date = new Date(a);
 			}
 			break;
-		case 2:
-			var dayOfYear = toDayOfYear(a, b);
-			date = Date.fromDayOfYear(a, dayOfYear);
-			break;
-		case 3:
-			var dayOfYear = toDayOfYear(a, b, c);
-			date = Date.fromDayOfYear(a, dayOfYear);
-			break;
-		case 4:
-			var dayOfYear = toDayOfYear(a, b, c);
-			date = Date.fromDayOfYear(a, dayOfYear);
-			date.setHours(d);
-			break;
-		case 5:
-			var dayOfYear = toDayOfYear(a, b, c);
-			date = Date.fromDayOfYear(a, dayOfYear);
-			date.setHours(d);
-			date.setMinutes(e);
-			break;
-		case 6:
-			var dayOfYear = toDayOfYear(a, b, c);
-			date = Date.fromDayOfYear(a, dayOfYear);
-			date.setHours(d);
-			date.setMinutes(e);
-			date.setSeconds(f);
-			break;
 		default:
-			var dayOfYear = toDayOfYear(a, b, c);
-			date = Date.fromDayOfYear(a, dayOfYear);
-			date.setHours(d);
-			date.setMinutes(e);
-			date.setSeconds(f);
-			date.setMilliseconds(g);
+			date = Date.fromDayOfYear(a, toDayOfYear(a, b, c));
+			if (d) {
+				date.setHours(d);
+				if (e) {
+					date.setMinutes(e);
+					if (f) {
+						date.setSeconds(f);
+						if (g) {
+							date.setMilliseconds(g);
+						}
+					}
+				}
+			}
 			break;
 	}
 	date.__proto__ = IFCDate.prototype;
@@ -104,9 +85,9 @@ IFCDate.prototype.getGregorianDay       = Date.prototype.getDay;
 
 IFCDate.prototype.getLeapDay = function () {
 	// Index of extra day within an intercalary (leap) year
-    // return 366; // Pancronometer
-    return 169; // Cotsworth
-    // return 57;  // Gregorian
+		// return 366; // Pancronometer
+		return 169; // Cotsworth
+		// return 57;  // Gregorian
 };
 
 IFCDate.prototype.getYearDay = function () {
@@ -194,9 +175,3 @@ IFCDate.prototype.toDateString = function () {
 
 	return `${DAYS[IFCDay]}, ${IFCDate} ${MONTHS[type][IFCMonth]} ${year}`;
 };
-
-// REMOVED TO REDUCE SIDE EFFECTS IMPOSED ON Date Object
-// Date.prototype.toIFCDateString = IFCDate.prototype.toDateString;
-// Date.prototype.getIFCMonth     = IFCDate.prototype.getMonth;
-// Date.prototype.getIFCDate      = IFCDate.prototype.getDate;
-// Date.prototype.getIFCDay       = IFCDate.prototype.getDay;
