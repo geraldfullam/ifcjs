@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>IFC library test</title>
+	<script src="index.js"></script>
+</head>
+<body>
+	<script type="text/javascript">
+var IFCday = new IFCDate();
+var today  = new Date();
+
+document.write('<b>IFC (Cotsworth) Date:</b> ', IFCday.toDateString(), ' <b>to Gregorian Date:</b> ', IFCday.toGregorianDateString());
+document.write('<br/><br/>');
+document.write('<b>Gregorian Date:</b> ', today.toDateString(), ' <b>to IFC (Cotsworth) Date:</b> ', new IFCDate(today).toDateString());
+	</script>
+</body>
+</html>
