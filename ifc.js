@@ -42,10 +42,56 @@ function IFCDate (a, b, c, d, e, f, g) {
   date.__proto__ = IFCDate.prototype;
   date.setMonthsList('cotsworth');
   date.setDaysList('cotsworth');
+  date.setLeapDay('cotsworth');
   return date;
 }
 
 IFCDate.prototype.__proto__ = Date.prototype;
+
+IFCDate.prototype.getYearDay = function () {
+  return this.isLeapYear() && (this.getLeapDay() !== 366) ? 366 : 365;
+};
+
+IFCDate.prototype.getLeapDay = function () {
+  return this.__leapDay;
+};
+
+IFCDate.prototype.setLeapDay = function (value) {
+  var presets = {
+    pancronometer: 366,
+    cotsworth    : 169,
+    gregorian    : 57
+  };
+  try {
+    switch (value) {
+      case 'pancronometer':
+        // FALLTHROUGH
+      case 'cotsworth':
+        // FALLTHROUGH
+      case 'gregorian':
+        this.__leapDay = presets[value.toLowerCase()];
+        break;
+      case '366':
+        // FALLTHROUGH
+      case '169':
+        // FALLTHROUGH
+      case '57':
+        this.__leapDay = parseInt(value);
+        break;
+      case 366:
+        // FALLTHROUGH
+      case 169:
+        // FALLTHROUGH
+      case 57:
+        this.__leapDay = value;
+        break;
+      default:
+        throw 'Expected a named preset or allowable number.'
+    }
+  } catch (e) {
+    console.error('Invalid argument.', e);
+  }
+};
 
 IFCDate.prototype.getDaysList = function () {
   return this.__days;
@@ -53,7 +99,7 @@ IFCDate.prototype.getDaysList = function () {
 
 IFCDate.prototype.setDaysList = function (value) {
   var presets = {
-    'cotsworth': ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Dies Anno (Year Day)', 'Dies Intercalaris (Leap Day)'],
+    cotsworth: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Dies Anno (Year Day)', 'Dies Intercalaris (Leap Day)'],
     'iso-8601' : ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday', 'Dies Anno (Year Day)', 'Dies Intercalaris (Leap Day)']
   };
   try {
@@ -151,16 +197,6 @@ IFCDate.prototype.getGregorianMonth     = Date.prototype.getMonth;
 IFCDate.prototype.getGregorianDate      = Date.prototype.getDate;
 IFCDate.prototype.getGregorianDay       = Date.prototype.getDay;
 
-IFCDate.prototype.getLeapDay = function () {
-  // Index of extra day within an intercalary (leap) year
-  // return 366; // Pancronometer
-  return 169; // Cotsworth
-  // return 57;  // Gregorian
-};
-
-IFCDate.prototype.getYearDay = function () {
-  return this.isLeapYear() && (this.getLeapDay() !== 366) ? 366 : 365;
-};
 
 /* CALCULATE MONTH BASED ON NORMALIZED DAY */
 IFCDate.prototype.getMonth = function (dayOfYear, normalizedDay) {
