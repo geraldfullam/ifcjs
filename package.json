@@ -1,0 +1,38 @@
+{
+  "name": "ifcjs",
+  "version": "1.0.0",
+  "description": "IFC.JS | A JavaScript Library for creating and working with dates in the International Fixed Calendar.",
+  "main": "ifc.js",
+  "directories": {
+    "example": "examples"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/geraldfullam/ifcjs.git"
+  },
+  "keywords": [
+    "date",
+    "international fixed calendar",
+    "calendar reform",
+    "pancronometer",
+    "world calendar",
+    "thirteen month calendar",
+    "13 month calendar",
+    "perennial calendar",
+    "Cotsworth",
+    "Gregorian"
+  ],
+  "author": "Gerald Fullam",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/geraldfullam/ifcjs/issues"
+  },
+  "homepage": "https://github.com/geraldfullam/ifcjs#readme",
+  "devDependencies": {
+    "karma": "^0.13.22",
+    "mocha": "^2.4.5"
+  }
+}
