@@ -2,7 +2,7 @@
   "name": "ifcjs",
   "version": "1.0.0",
   "description": "IFC.JS | A JavaScript Library for creating and working with dates in the International Fixed Calendar.",
-  "main": "ifc.js",
+  "main": "src/ifc.js",
   "directories": {
     "example": "examples"
   },
@@ -32,6 +32,7 @@
   },
   "homepage": "https://github.com/geraldfullam/ifcjs#readme",
   "devDependencies": {
+    "chai": "^3.5.0",
     "karma": "^0.13.22",
     "mocha": "^2.4.5"
   }
