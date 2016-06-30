@@ -31,6 +31,8 @@
       case 1:
         if (a instanceof Date) {
           date = a;
+        } else if (a instanceof String || typeof a === 'string') {
+          date = new Date(IFCDate.parse(a));
         } else {
           date = new Date(a);
         }
@@ -59,6 +61,8 @@
 
     return date;
   }
+
+  IFCDate.now = Date.now;
 
   IFCDate.prototype.__proto__ = Date.prototype;
 
