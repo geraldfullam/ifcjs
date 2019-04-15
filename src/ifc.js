@@ -11,58 +11,81 @@
 })(this, function () {
   function IFCDate (a, b, c, d, e, f, g) {
     var date;
-    var toDayOfYear = function (y, m, d) {
-      y = y || new Date().getFullYear();
-      m = m || 0;
-      d = d || 1;
 
-      var date      = new Date(y, 0);
-      var dayOfYear = (m * 28) + d;
-
-      return (date.isLeapYear() && m > 5)
-        ? dayOfYear += 1
-        : dayOfYear;
-    };
-
-    switch (arguments.length) {
-      case 0:
-        date = new Date();
-        break;
-      case 1:
-        if (a instanceof Date) {
-          date = a;
-        } else if (a instanceof String || typeof a === 'string') {
-          date = new Date(IFCDate.parse(a));
-        } else {
-          date = new Date(a);
-        }
-        break;
-      default:
-        date = Date.fromDayOfYear(a, toDayOfYear(a, b, c));
-        if (d) {
-          date.setHours(d);
-          if (e) {
-            date.setMinutes(e);
-            if (f) {
-              date.setSeconds(f);
-              if (g) {
-                date.setMilliseconds(g);
+    try {
+      switch (arguments.length) {
+        case 0:
+          date = new Date();
+          break;
+        case 1:
+          if (a instanceof Date) {
+            date = new Date(a);
+          } else if (a instanceof String || typeof a === 'string') {
+            date = new Date(IFCDate.parse(a));
+          } else {
+            throw 'Expected a Date object or a valid ISO date string.'
+          }
+          break;
+        default:
+          date = Date.fromDayOfYear(a, IFCDate.toDayOfYear(a, b, c)); // FIX THIS. CIRCULAR REF. Accomodate leap day.
+          if (d) {
+            date.setHours(d);
+            if (e) {
+              date.setMinutes(e);
+              if (f) {
+                date.setSeconds(f);
+                if (g) {
+                  date.setMilliseconds(g);
+                }
               }
             }
           }
-        }
-        break;
+          break;
+      }
+
+      date.__proto__ = IFCDate.prototype;
+      date.setMonthsList('cotsworth');
+      date.setDaysList('cotsworth');
+      date.setLeapDay('cotsworth');
+
+      return date;
+    } catch (e) {
+      console.error('Invalid argument.', e);
     }
-
-    date.__proto__ = IFCDate.prototype;
-    date.setMonthsList('cotsworth');
-    date.setDaysList('cotsworth');
-    date.setLeapDay('cotsworth');
-
-    return date;
   }
 
+  IFCDate.toDayOfYear = function (y, m, d) {
+    y = y || new Date().getFullYear();
+    m = m || 0;
+    d = d || 1;
+
+    var newIFCDate = new IFCDate(y, m, d);
+
+    return newIFCDate.getDayOfYear();
+  };
+
   IFCDate.now = Date.now;
+
+  IFCDate.parse = function (dateString) {
+    var parsed = dateString.match(/(\d{4})-(\d{2})-(\d{2})/);
+    if (!parsed) {
+      throw 'Expected a valid ISO date string.'
+    } else {
+      var y = parseInt(parsed[1]);
+      var m = parseInt(parsed[2]) - 1;
+      var d = parseInt(parsed[3]);
+      var newIFCDate = new IFCDate(y, m, d);
+
+      return newIFCDate.getTime();
+    }
+  };
+
+  /* TODO: Figure out what this is. Is it still needed? */
+  IFCDate.UTC = function (a, b, c, d, e, f, g) {
+    var newIFCDate = new IFCDate(a, b, c, d, e, f, g);
+
+    return newIFCDate.getTime();
+  };
 
   IFCDate.prototype.__proto__ = Date.prototype;
 
@@ -217,29 +240,39 @@
     return m > 1 && this.isLeapYear() ? dayOfYear + 1 : dayOfYear;
   };
 
+  /* CALCULATE IFC NORMALIZED DAY
+     Used for easier calculation of months, dates and days in IFC. */
+  IFCDate.prototype.getNormalizedDay = function (dayOfYear) {
+    var isLeapYear = this.isLeapYear();
+    var IFCLeapDay = this.getLeapDay();
+
+    return isLeapYear && (dayOfYear > IFCLeapDay)
+      ? dayOfYear - 1
+      : dayOfYear;
+  };
+
   IFCDate.prototype.toGregorianDateString = Date.prototype.toDateString;
   IFCDate.prototype.getGregorianMonth     = Date.prototype.getMonth;
   IFCDate.prototype.getGregorianDate      = Date.prototype.getDate;
   IFCDate.prototype.getGregorianDay       = Date.prototype.getDay;
 
-
-  /* CALCULATE MONTH BASED ON NORMALIZED DAY */
-  IFCDate.prototype.getMonth = function (dayOfYear, normalizedDay) {
-    var IFCNormalizedDay = normalizedDay || this.getNormalizedDay(dayOfYear);
+  /* CALCULATE MONTH AS 0-BASED INDEX FROM NORMALIZED DAY */
+  IFCDate.prototype.getMonth = function (dayOfYear = this.getDayOfYear()) {
+    var IFCNormalizedDay = this.getNormalizedDay(dayOfYear);
     var index            = parseInt((IFCNormalizedDay / 28), 10);
     var IFCLeapDay       = this.getLeapDay();
     var IFCYearDay       = this.getYearDay();
 
     return !(IFCNormalizedDay % 28)
-           || dayOfYear === IFCLeapDay
-           || dayOfYear === IFCYearDay
+           || IFCNormalizedDay === IFCLeapDay
+           || IFCNormalizedDay === IFCYearDay
       ? index - 1
       : index;
   };
 
-  /* CALCULATE DAY OF MONTH BASED ON NORMALIZED DAY */
-  IFCDate.prototype.getDate = function (dayOfYear, normalizedDay) {
-    var IFCNormalizedDay = normalizedDay || this.getNormalizedDay(dayOfYear);
+  /* CALCULATE DAY OF MONTH AS 0-BASED INDEX FROM NORMALIZED DAY */
+  IFCDate.prototype.getDate = function (dayOfYear = this.getDayOfYear()) {
+    var IFCNormalizedDay = this.getNormalizedDay(dayOfYear);
     var IFCLeapDay       = this.getLeapDay();
     var IFCYearDay       = this.getYearDay();
 
@@ -253,9 +286,9 @@
     }
   };
 
-  /* CALCULATE DAY OF MONTH BASED ON NORMALIZED DAY */
-  IFCDate.prototype.getDay = function (dayOfYear, normalizedDay) {
-    var IFCNormalizedDay = normalizedDay || this.getNormalizedDay(dayOfYear);
+  /* CALCULATE DAY OF WEEK AS 0-BASED INDEX FROM NORMALIZED DAY */
+  IFCDate.prototype.getDay = function (dayOfYear = this.getDayOfYear()) {
+    var IFCNormalizedDay = this.getNormalizedDay(dayOfYear);
     var IFCLeapDay       = this.getLeapDay();
     var IFCYearDay       = this.getYearDay();
 
@@ -268,30 +301,29 @@
     }
   };
 
-  /* CALCULATE IFC NORMALIZED DAY
-     Used for easier calculating of months, dates and days in IFC. */
-  IFCDate.prototype.getNormalizedDay = function (dayOfYear) {
-    var isLeapYear = this.isLeapYear();
-    var IFCLeapDay = this.getLeapDay();
+  /* Return date as ISO string. Example: 2018-01-01T00:00:01.000Z */
+  IFCDate.prototype.toISOString = function () {
+    var m         = this.getGregorianMonth();
+    var d         = this.getGregorianDate();
+    var dayOfYear = dayCount[m] + d;
 
-    return isLeapYear && (dayOfYear > IFCLeapDay)
-      ? dayOfYear - 1
-      : dayOfYear;
+    return m > 1 && this.isLeapYear() ? dayOfYear + 1 : dayOfYear;
   };
 
+  /* Return date as string. Example: Sunday, 1 January 2018 */
   IFCDate.prototype.toDateString = function () {
     var days             = this.getDaysList();
     var months           = this.getMonthsList();
     var year             = this.getFullYear();
     var dayOfYear        = this.getDayOfYear();
-    var IFCNormalizedDay = this.getNormalizedDay(dayOfYear);
-    var IFCMonth         = this.getMonth(dayOfYear, IFCNormalizedDay);
-    var IFCDate          = this.getDate(dayOfYear, IFCNormalizedDay);
-    var IFCDay           = this.getDay(dayOfYear, IFCNormalizedDay);
+    var IFCMonth         = this.getMonth(dayOfYear);
+    var IFCDate          = this.getDate(dayOfYear);
+    var IFCDay           = this.getDay(dayOfYear);
 
     return days[IFCDay] + ', ' + IFCDate + ' ' + months[IFCMonth] + ' ' + year;
   };
 
+  /* Return date & time as string. Example: Sunday, 1 January 2018 00:00:01 GMT-0500 (EST) */
   IFCDate.prototype.toString = function () {
     return this.toDateString() + ' ' + this.toTimeString();
   };

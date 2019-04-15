@@ -10,17 +10,33 @@
     var today   = new Date();
     var IFCday  = new IFCDate();
     var IFCday2 = new IFCDate();
-
+    
     IFCday2.setMonthsList('esperanto_sequential');
     IFCday2.setDaysList('iso-8601');
 
-    document.write('<b>IFC (Cotsworth) Date:</b> ', IFCday.toDateString(), '<br/><b>to Gregorian Date:</b> ', IFCday.toGregorianDateString());
-    document.write('<br/><br/>');
-    document.write('<b>Gregorian Date:</b> ', today.toDateString(), '<br/><b>to IFC (Cotsworth) Date:</b> ', new IFCDate(today).toDateString());
-    document.write('<br/><br/>');
-    document.write('<b>IFC (Esperanto Sequential) Date:</b> ', IFCday2.toDateString(), '<br/><b>to Gregorian Date:</b> ', IFCday2.toGregorianDateString());
-    document.write('<br/><br/>');
-    document.write('<b>IFC (Cotsworth) Date &amp; Time:</b> ', IFCday.toString(), '<br/><b>to Gregorian Date:</b> ', IFCday.toGregorianDateString() + ' ' + IFCday.toTimeString());
+    document.write(
+        `<b>IFC (Cotsworth) Date:</b> ${IFCday.toDateString()}`,
+        `<br/><b>to Gregorian Date:</b> ${IFCday.toGregorianDateString()}`,
+        `<br/><br/>`
+    );
+
+    document.write(
+        `<b>Gregorian Date:</b> ${today.toDateString()}`,
+        `<br/><b>to IFC (Cotsworth) Date:</b> ${new IFCDate(today).toDateString()}`,
+        `<br/><br/>`
+    );
+
+    document.write(
+        `<b>IFC (Cotsworth) Date &amp; Time:</b> ${IFCday.toString()}`,
+        `<br/><b>to Gregorian Date &amp; Time:</b> ${IFCday.toGregorianDateString()} ${IFCday.toTimeString()}`,
+        `<br/><b>to Gregorian Date &amp; Time:</b> ${new Date(IFCday).toString()}`,
+        `<br/><br/>`
+    );
+
+    document.write(
+        `<b>IFC (Esperanto Sequential) Date:</b> ${IFCday2.toDateString()}`,
+        `<br/><b>to Gregorian Date:</b> ${IFCday2.toGregorianDateString()}`
+    );
 </script>
 </body>
 </html>
